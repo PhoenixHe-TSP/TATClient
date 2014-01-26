@@ -1,4 +1,7 @@
 *.class
+.idea
+local.properties
+gen
 
 # Package Files #
 *.jar
