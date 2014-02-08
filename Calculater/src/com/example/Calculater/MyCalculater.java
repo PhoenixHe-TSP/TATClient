@@ -3,6 +3,7 @@ package com.example.Calculater;
 /**
  * Created by Administrator on 14-1-26.
  */
+
 import java.util.*;
 
 public class MyCalculater {
@@ -56,11 +57,12 @@ public class MyCalculater {
                                 get = stack.getPeak();
                             }
                             stack.pop();
-                        }break;
-                        default:{
+                        }
+                        break;
+                        default: {
                             String get = stack.getPeak();
                             char k2 = get.charAt(0);
-                            while (compareTo(k2,k)){
+                            while (compareTo(k2, k)) {
                                 num++;
                                 back[num] = get;
                                 if (stack.isEmpty()) break;
@@ -70,13 +72,14 @@ public class MyCalculater {
                                 k2 = get.charAt(0);
                             }
                             stack.push(temp);
-                        }break;
+                        }
+                        break;
                     }
                 }
             }
 
         }
-        while (!stack.isEmpty()){
+        while (!stack.isEmpty()) {
             num++;
             back[num] = stack.pop();
         }
@@ -86,24 +89,32 @@ public class MyCalculater {
     public String calcBack(String[] back) {
         MyStack stack = new MyStack();
         int length = findLength(back);
-        for (int i = 0; i < length; i++){
+        for (int i = 0; i < length; i++) {
             String temp = back[i];
             char k = temp.charAt(0);
-            if (k >= '0' && k <= '9'){
+            if (k >= '0' && k <= '9') {
                 stack.push(temp);
-            }else{
+            } else {
                 String s2 = stack.pop();
                 String s1 = stack.pop();
                 double a = Double.parseDouble(s1);
                 double b = Double.parseDouble(s2);
                 double con = 0;
-                switch (k){
-                    case '+' : con = a + b; break;
-                    case '-' : con = a - b; break;
-                    case '*' : con = a * b; break;
-                    case '/' : con = a / b; break;
+                switch (k) {
+                    case '+':
+                        con = a + b;
+                        break;
+                    case '-':
+                        con = a - b;
+                        break;
+                    case '*':
+                        con = a * b;
+                        break;
+                    case '/':
+                        con = a / b;
+                        break;
                 }
-                String t = String.format("%2.5f",con);
+                String t = String.format("%2.5f", con);
                 stack.push(t);
             }
         }
@@ -185,7 +196,7 @@ class MyStack {
         return content[num + 1];
     }
 
-    public String getPeak(){
+    public String getPeak() {
 
         return content[num];
     }
