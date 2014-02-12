@@ -8,8 +8,8 @@ import fdu.kernelpanic.core.service.TATService;
  */
 public class PlusService extends TATService {
     @Override
-    protected void init() {
-        Log.d("PlusService", "init");
+    protected void doInit() {
+        Log.d("PlusService", "doInit");
     }
 
     @Override

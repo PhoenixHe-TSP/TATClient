@@ -7,11 +7,15 @@ public abstract class TATService {
     private boolean inited = false;
     private boolean started = false;
 
+    public final void init() {
+        if (inited)
+            return;
+        doInit();
+        inited = true;
+    }
+
     public final void start() {
-        if (!inited) {
-            init();
-            inited = true;
-        }
+        init();
         if (started)
             return;
         started = true;
@@ -25,7 +29,11 @@ public abstract class TATService {
         doStop();
     }
 
-    protected abstract void init();
+    public boolean getRunningState() {
+        return started;
+    }
+
+    protected abstract void doInit();
     protected abstract void doStart();
-    public abstract void doStop();
+    protected abstract void doStop();
 }
