@@ -1,3 +1,6 @@
 {
-    "test": "t"
+    "user":{
+        "username":"a",
+        "password":"a"
+    }
 }

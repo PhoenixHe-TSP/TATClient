@@ -1,4 +1,4 @@
-package fdu.kernelpanic.core;
+package fdu.kernelpanic.core.config;
 
 import android.app.Activity;
 import android.os.Environment;
@@ -6,6 +6,9 @@ import android.util.Log;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fdu.kernelpanic.core.JsonModel;
+import fdu.kernelpanic.core.event.EventBusService;
+import fdu.kernelpanic.core.service.ServiceManager;
 import fdu.kernelpanic.core.service.TATService;
 
 import java.io.*;
@@ -25,7 +28,7 @@ public class ConfigService extends TATService {
     private Activity mainActivity = null;
 
     private static ObjectMapper om = new ObjectMapper();
-    private ObjectNode rootNode;
+    private JsonModel data;
 
     @Override
     protected void doInit() {
@@ -45,11 +48,15 @@ public class ConfigService extends TATService {
                 os.close();
             }
 
-            rootNode = (ObjectNode) om.readTree(new FileInputStream(fd));
+            InputStream is = new FileInputStream(fd);
+            byte[] buffer = new byte[is.available()];
+            is.read(buffer);
+            data = new JsonModel(buffer.toString());
         } catch (Exception e) {
             Log.e("ConfigService", "Something wrong with ConfigService", e);
         }
     }
+
     @Override
     protected void doStart() {
     }
@@ -95,40 +102,19 @@ public class ConfigService extends TATService {
      *         files' root node
      */
     public JsonNode getNode(String path) {
-        return getNode(rootNode, path);
+        return data.getNode(path);
     }
 
     public ObjectNode getObjectNode(String path) {
         return (ObjectNode) getNode(path);
     }
 
-    public static void set(ObjectNode t, String path, String value) {
-        String[] p = path.split("\\/");
-        for (int i = 0; i < p.length - 1; ++i) {
-            if (!t.has(p[i]))
-                t.put(p[i], om.getNodeFactory().objectNode());
-            t = (ObjectNode) t.get(p[i]);
-        }
-        t.put(p[p.length-1], value);
-    }
-
-    public static void remove(ObjectNode t, String path) {
-        try {
-            String[] p = path.split("\\/");
-            for (int i = 0; i < p.length - 1; ++i)
-                t = (ObjectNode) t.get(p[i]);
-            t.remove(p[p.length-1]);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public void remove(String path) {
-        remove(rootNode, path);
+        data.remove(path);
     }
 
     public void set(String path, String value) {
-        set(rootNode, path, value);
+        data.set(path, value);
     }
 
     /**
@@ -147,7 +133,7 @@ public class ConfigService extends TATService {
      *         path of the config files' root node
      */
     public String get(String path) {
-        return get(rootNode, path);
+        return data.get(path);
     }
 
     public List<String> getStringArray(String path) {
@@ -159,12 +145,13 @@ public class ConfigService extends TATService {
 
     public void save() {
         try {
-            String val = om.writerWithDefaultPrettyPrinter().writeValueAsString(rootNode);
+            String val = data.toString();
             OutputStream os = new FileOutputStream(filePath);
             os.write(val.getBytes());
             os.flush();os.close();
+            ServiceManager.get().service(EventBusService.class).post(new ConfigSaveEvent());
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("ConfigService", "Cannot save config.json!", e);
         }
     }
 }
